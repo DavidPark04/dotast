@@ -1,60 +1,24 @@
 name: Build DoTask
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
+
 jobs:
-  build:
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            name: Windows
-          - os: macos-latest
-            name: macOS
-          - os: ubuntu-latest
-            name: Linux
-    runs-on: ${{ matrix.os }}
-    name: Build ${{ matrix.name }}
+  build-windows:
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
       - run: npm install
-      - name: Build Windows
-        if: matrix.os == 'windows-latest'
-        run: npm run build:win
+      - run: npm run build:win
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build macOS
-        if: matrix.os == 'macos-latest'
-        run: npm run build:mac
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build Linux
-        if: matrix.os == 'ubuntu-latest'
-        run: npm run build:linux
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload Windows
-        if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: DoTask-Windows-exe
           path: dist/*.exe
-          retention-days: 30
-      - name: Upload macOS
-        if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: DoTask-macOS-dmg
-          path: dist/*.dmg
-          retention-days: 30
-      - name: Upload Linux
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: DoTask-Linux
-          path: dist/*.AppImage
           retention-days: 30
